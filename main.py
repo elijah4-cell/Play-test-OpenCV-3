@@ -23,6 +23,9 @@ for file in dir:
   # read in image file
   img = cv2.imread(path) 
 
+  # blur image to reduce noise and avoid false circle detection
+  src = cv2.imread(path) 
+  B_img = cv2.blur(src,(5,5))
 
   #https://www.pyimagesearch.com/2014/08/04/opencv-python-color-detection/
   # https://www.rapidtables.com/web/color/RGB_Color.html
@@ -50,11 +53,11 @@ for file in dir:
   #print (circles)
 
   #turn x and y coordinates into intergers
-  detected_circles = np.uint8(np.around(circles))
+  detected_circles = np.uint16(np.around(circles))
   #print (detected_circles)
   for (x, y, r) in detected_circles[0, :]:
-      cv2.circle(B_img, (x, y), r, (100, 100, 120), 3)
-      cv2.circle(B_img, (x, y), 2, (0, 0, 255), 3)
+      cv2.circle(gray_output, (x, y), r, (100, 100, 120), 3)
+      cv2.circle(gray_output, (x, y), 2, (0, 0, 255), 3)
 
   #print coordinates of centre and radius
   #print (x, y, r)
