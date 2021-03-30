@@ -24,10 +24,12 @@ for file in dir:
 
   #https://www.youtube.com/watch?v=8CMTqpZoec8
   gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+  #blur gray img
   B_img = cv2.medianBlur(gray, 5)
 
+  #change blur gray img to colour
   C_img = cv2.cvtColor(B_img, cv2.COLOR_GRAY2BGR)
-
 
   # blur image to reduce noise and avoid false circle detection
   #src = cv2.imread(path) 
@@ -40,8 +42,8 @@ for file in dir:
   upper_range = np.array([200, 255, 255], dtype="uint8")
 
   # create mask and apply
-  #mask = cv2.inRange(B_img, lower_range, upper_range)
-  #output = cv2.bitwise_and(B_img, img, mask=mask)
+  mask = cv2.inRange(C_img, lower_range, upper_range)
+  output = cv2.bitwise_and(C_img, img, mask=mask)
 
   #read in image file
   #src = cv2.imread(path)
@@ -55,21 +57,27 @@ for file in dir:
   #https://docs.opencv.org/master/da/d53/tutorial_py_houghcircles.html
   #https://www.youtube.com/watch?v=dp1r9oT_h9k
   #parametres of circle
-  circles = cv2.HoughCircles(B_img,cv2.HOUGH_GRADIENT,1,20,param1=50,param2=30,minRadius=0,maxRadius=0)
+  circles = cv2.HoughCircles(B_img, 
+                   cv2.HOUGH_GRADIENT, 1, 200, param1 = 110,
+               param2 = 30, minRadius = 20, maxRadius = 200)
+  
+  #cv2.HoughCircles(B_img,cv2.HOUGH_GRADIENT,1,10,param1=50,param2=30,minRadius=50,maxRadius=0)
   #print (circles)
 
   #turn x and y coordinates into intergers
   detected_circles = np.uint16(np.around(circles))
   #print (detected_circles)
   for (x, y, r) in detected_circles[0, :]:
-      cv2.circle(B_img, (x, y), r, (100, 100, 120), 3)
-      cv2.circle(B_img, (x, y), 2, (0, 0, 255), 3)
+      #draw outer circle
+      cv2.circle(C_img, (x, y), r, (100, 100, 120), 3)
+      #draw inner circle
+      cv2.circle(C_img, (x, y), 2, (0, 0, 255), 3)
 
   #print coordinates of centre and radius
-  #print (x, y, r)
+  print (x, y, r)
 
   # color output img file
-  cv2.imwrite("Tennis ball outputs/c_output.png" + file, B_img)
+  cv2.imwrite("Tennis ball outputs/c_output.png" + file, C_img)
 
   # output file
   #cv2.imwrite("Tennis ball outputs/output.png" + file, gray_output)
