@@ -7,30 +7,42 @@ def direction():
 
   dir = 0
   #https://appdividend.com/2020/09/09/python-cv2-image-size-how-to-get-image-size-in-python/#:~:text=To%20get%20the%20proper%20size,with%20OpenCV%2C%20use%20the%20ndarray.
+  #gives hight, width, channel of the img
   h, w, c = img.shape
+  
+  #print width of img
   print('width:', w)
+  
+  #find centre of img by dividing by two
   centre_img = w//2 
+  
+  #print centre of img
   print('centre of img:', centre_img)
+
+
   if centre_img < x:
    print('x-value of TB:', x)
+
+   #direction
    print('Right')
    dir = -1
 
-  if centre_img > x:
+  elif centre_img > x:
    print('x-value of TB:', x)
    print('Left')
    dir = 1
 
-  else:
+  elif centre_img == x:
    print('x-value of TB:', x)
    print('centre')
    dir = 0
+
+  else: 
+    print('unknown direction')
+
+  print('')
   
   return dir
-
-
-
-
 
 #https://www.tutorialspoint.com/python/os_listdir.htm
 # open file
@@ -39,7 +51,6 @@ dir = os.listdir(folder)
 #print (dir)
 
 # print files
-
   
 for file in dir:
 
@@ -50,9 +61,6 @@ for file in dir:
 
   # read in image file
   img = cv2.imread(path)
-
-
-
 
   #convert BGR to HSV 
   HSV_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -118,9 +126,9 @@ for file in dir:
 
   #print coordinates of centre and radius
   print (x, y, r)
-
+  
+  #gives direction of tennis ball 🎾 
   direction()
-
 
   # color output C_output file
   cv2.imwrite("Tennis ball outputs/c_output.png" + file, C_output)
