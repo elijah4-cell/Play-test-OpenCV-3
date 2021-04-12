@@ -2,11 +2,41 @@ import cv2
 import numpy as np
 import os
 
+
+def direction():
+
+  dir = 0
+  #https://appdividend.com/2020/09/09/python-cv2-image-size-how-to-get-image-size-in-python/#:~:text=To%20get%20the%20proper%20size,with%20OpenCV%2C%20use%20the%20ndarray.
+  h, w, c = img.shape
+  print('width:', w)
+  centre_img = w//2 
+  print('centre of img:', centre_img)
+  if centre_img < x:
+   print('x-value of TB:', x)
+   print('Right')
+   dir = -1
+
+  if centre_img > x:
+   print('x-value of TB:', x)
+   print('Left')
+   dir = 1
+
+  else:
+   print('x-value of TB:', x)
+   print('centre')
+   dir = 0
+  
+  return dir
+
+
+
+
+
 #https://www.tutorialspoint.com/python/os_listdir.htm
 # open file
 folder = "tennis balls"
 dir = os.listdir(folder)
-print (dir)
+#print (dir)
 
 # print files
 
@@ -19,7 +49,10 @@ for file in dir:
  #print (file)
 
   # read in image file
-  img = cv2.imread(path) 
+  img = cv2.imread(path)
+
+
+
 
   #convert BGR to HSV 
   HSV_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -62,9 +95,13 @@ for file in dir:
   #https://www.youtube.com/watch?v=dp1r9oT_h9k
   #parametres of circle
   circles = cv2.HoughCircles(B_output, 
-                   cv2.HOUGH_GRADIENT, 1, 200, param1 = 110,
-               param2 = 30, minRadius = 20, maxRadius = 200)
+                   cv2.HOUGH_GRADIENT, 1, 200, param1 = 75,
+               param2 = 30, minRadius = 15, maxRadius = 165)
   
+  #second
+  #  circles = cv2.HoughCircles(B_output, cv2.HOUGH_GRADIENT, 1, 200, param1 = 110,param2 = 30, minRadius = 20, maxRadius = 200)
+
+  #first
   #cv2.HoughCircles(B_img,cv2.HOUGH_GRADIENT,1,10,param1=50,param2=30,minRadius=50,maxRadius=0)
   #print (circles)
   try:
@@ -81,6 +118,9 @@ for file in dir:
 
   #print coordinates of centre and radius
   print (x, y, r)
+
+  direction()
+
 
   # color output C_output file
   cv2.imwrite("Tennis ball outputs/c_output.png" + file, C_output)
