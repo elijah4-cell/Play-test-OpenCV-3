@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import os
 
-
 def direction():
 
     dir = 0
@@ -22,30 +21,30 @@ def direction():
 
     #img by dividing by two - a
     #right param
-    Rcentre_img = w // 2 - a
+    Lcentre_img = w // 2 - a
 
     #find centre of img by dividing by two + a
     #left param
-    Lcentre_img = w // 2 + a
+    Rcentre_img = w // 2 + a
 
     #print centre of img
     print('centre of img:', centre_img)
 
-    if Lcentre_img < x:
+    if Rcentre_img < x:
         print('x-value of TB:', x)
-        print('range centre of img:', Lcentre_img)
+        print('range centre of img:', Rcentre_img)
 
         #direction
         print('Right')
-        dir = -1
-
-    elif Rcentre_img > x:
-        print('x-value of TB:', x)
-        print('range centre of img:', Rcentre_img)
-        print('Left')
         dir = 1
 
-    elif centre_img == x or Rcentre_img < x or Lcentre_img > x:
+    elif Lcentre_img > x:
+        print('x-value of TB:', x)
+        print('range centre of img:', Lcentre_img)
+        print('Left')
+        dir = -1
+
+    elif centre_img == x or Rcentre_img > x or Lcentre_img < x:
         print('x-value of TB:', x)
         print('centre of img:', centre_img)
         print('range Rcentre of img:', Rcentre_img)
@@ -59,7 +58,6 @@ def direction():
     print('')
 
     return dir
-
 
 #https://www.tutorialspoint.com/python/os_listdir.htm
 # open file
@@ -124,15 +122,16 @@ for file in dir:
 
     #https://docs.opencv.org/master/da/d53/tutorial_py_houghcircles.html
     #https://www.youtube.com/watch?v=dp1r9oT_h9k
+    #cv.HoughCircles(	image, method, dp, minDist[, circles[, param1[, param2[, minRadius[, maxRadius]]]]]	) ->	circles
     #parametres of circle
     circles = cv2.HoughCircles(B_output,
                                cv2.HOUGH_GRADIENT,
-                               1,
-                               200,
+                               0.4,
+                               175,
                                param1=75,
                                param2=30,
                                minRadius=15,
-                               maxRadius=165)
+                               maxRadius=125)
 
     #second
     #  circles = cv2.HoughCircles(B_output, cv2.HOUGH_GRADIENT, 1, 200, param1 = 110,param2 = 30, minRadius = 20, maxRadius = 200)
@@ -153,7 +152,7 @@ for file in dir:
         cv2.circle(C_output, (x, y), 2, (0, 0, 255), 3)
 
     #print coordinates of centre and radius
-    print(x, y, r)
+    print(x, y, r) 
 
     #gives direction of tennis ball 🎾
     direction()
