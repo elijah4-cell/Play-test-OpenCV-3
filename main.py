@@ -77,35 +77,8 @@ for file in dir:
     # read in image file
     img = cv2.imread(path)
 
-    #convert BGR to HSV
-    HSV_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-
-    #output HSV_img file
-    cv2.imwrite("Tennis ball colour outputs/HSV" + file, HSV_img)
-
-    #https://www.pyimagesearch.com/2014/08/04/opencv-python-color-detection/
-    # https://www.rapidtables.com/web/color/RGB_Color.html
-    # define the boundaries
-    lower_range = np.array([0, 60, 100], dtype="uint8")
-    upper_range = np.array([200, 255, 255], dtype="uint8")
-
-    # create mask and apply
-    mask = cv2.inRange(HSV_img, lower_range, upper_range)
-
-    #output mask file
-    cv2.imwrite("Tennis ball colour outputs/mask" + file, mask)
-
-    #
-    output = cv2.bitwise_and(HSV_img, HSV_img, mask=mask)
-
-    #convert HSV back to BGR
-    BGR_output = cv2.cvtColor(output, cv2.COLOR_HSV2BGR)
-
-    #output HSV2BGR file
-    cv2.imwrite("Tennis ball colour outputs/BGR" + file, BGR_output)
-
     #convert BGR to gray for HoughCircles function
-    G_output = cv2.cvtColor(BGR_output, cv2.COLOR_BGR2GRAY)
+    G_output = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     #https://www.youtube.com/watch?v=8CMTqpZoec8
     #blur g_output
@@ -158,7 +131,7 @@ for file in dir:
     direction()
 
     # color output C_output file
-    cv2.imwrite("Tennis ball outputs/c_output.png" + file, C_output)
+    cv2.imwrite("Tennis ball outputs/B_output.png" + file, B_output)
 
     # output G_output file
     cv2.imwrite("Tennis ball outputs/output.png" + file, C_output)
