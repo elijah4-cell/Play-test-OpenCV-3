@@ -1,0 +1,177 @@
+from picamera.array import PiRGBArray
+from picamera import PiCamera
+import time
+from time import sleep
+import cv2
+import numpy as np
+import os
+import serial
+import time
+
+def direction():
+    # gives height, width and channel of img
+    h, w, c = image.shape
+
+    # print width of img
+    print('width:', w)
+
+    # find centre of img by dividing the width
+    centre_img = w//2
+
+    # a is range
+    # centre ranges from -40 to 40
+    a = 40
+
+    # img by dividing by two + a
+    # right param
+    Rcentre_img = w//2 + a
+
+    # find centre of img by dividing by two - a
+    # left param
+    Lcentre_img = w//2 - a
+
+    # position of tennis ball
+    if Lcentre_img > x > 0:
+        print('Tennis ball positioned on Left')
+
+    elif Rcentre_img < x:
+        print('Tennis ball positioned on Right')
+
+    else:
+        print('No Tennis ball')
+
+    # move motors
+    if x > 0:
+        print('x-value of TB:', x)
+        print('Tennis ball detected')
+        # setup serial communication with arduino and raspberry pi
+        # send message to Arduino UNO
+        arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+        time.sleep(2)
+
+        while 3:
+            # 3 is forwards
+            command = str.encode('3')
+            arduino.write(command)
+            time.sleep(1.5)
+        dir = 0
+
+    if x <= 0:
+        print('x-value of TB:', x)
+        print('Tennis ball Not detected')
+        arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+        time.sleep(2)
+
+        while 1:
+            # 1 is right
+            command = str.encode('1')
+            arduino.write(command)
+            time.sleep(1.5)
+        dir = 0
+
+    else:
+        print('unknown direction')
+        arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+        time.sleep(2)
+
+        while 2:
+            # 2 is left
+            command = str.encode('2')
+            arduino.write(command)
+            time.sleep(1.5)
+    print('')
+
+    return dir
+
+# https://projects.raspberrypi.org/en/projects/getting-started-with-picamera/4
+# https://www.pyimagesearch.com/2015/03/30/accessing-the-raspberry-pi-camera-with-opencv-and-python/
+camera = PiCamera()
+# rotate the camera right side up
+camera.rotation = 180
+
+camera.start_preview()
+rawCapture = PiRGBArray(camera)
+# give time for camera to see the tennis ball clearly
+sleep(5)
+
+camera.stop_preview()
+
+# allow capture image to warm up
+time.sleep(0.1)
+
+# capture the image
+camera.capture(rawCapture, format="bgr")
+image = rawCapture.array
+
+hsv1 = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+# cv2.imshow("HSV", hsv1)
+
+# https://www.pyimagesearch.com/2014/08/04/opencv-python-color-detection/
+# https://www.rapidtables.com/web/color/RGB_Color.html
+# define the boundaries
+lower_range = np.array([0, 60, 100], dtype="uint8")
+upper_range = np.array([200, 255, 255], dtype="uint8")
+
+# create mask and apply
+mask = cv2.inRange(hsv1, lower_range, upper_range)
+
+#
+output = cv2.bitwise_and(hsv1, hsv1, mask=mask)
+
+# convert HSV back to BGR
+BGR_output = cv2.cvtColor(output, cv2.COLOR_HSV2BGR)
+
+# convert BGR to gray for HoughCircles function
+G_output = cv2.cvtColor(BGR_output, cv2.COLOR_BGR2GRAY)
+
+# show G_output image
+# cv2.imshow("Gray Image", G_output)
+
+# https://www.youtube.com/watch?v=8CMTqpZoec8
+# blur g_output
+B_output = cv2.medianBlur(G_output, 5)
+
+# convert gray to BGR
+C_output = cv2.cvtColor(B_output, cv2.COLOR_GRAY2BGR)
+
+# show C_output image
+# cv2.imshow("Colour Image", C_output)
+
+# https://docs.opencv.org/master/da/d53/tutorial_py_houghcircles.html
+# https://www.youtube.com/watch?v=dp1r9oT_h9k
+# cv.HoughCircles(	image, method, dp, minDist[, circles[, param1[, param2[, minRadius[, maxRadius]]]]]	)
+# parametres of circle
+circles = cv2.HoughCircles(B_output,
+                           cv2.HOUGH_GRADIENT,
+                           2,
+                           20,
+                           param1=300,
+                           param2=0.9,
+                           minRadius=6,
+                           maxRadius=50)
+
+try:
+    # turn x and y coordinates into intergers
+    detected_circles = np.uint8(np.around(circles))
+except:
+    print("none")
+    arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+    time.sleep(2)
+
+    while 2:
+        command = str.encode('2')
+        arduino.write(command)
+        time.sleep(1.5)
+
+# print (detected_circles)
+for (x, y, r) in detected_circles[0, :]:
+    # draw outer circle
+    cv2.circle(C_output, (x, y), r, (0, 255, 0), 3)
+    # draw inner circle
+    cv2.circle(C_output, (x, y), 2, (0, 0, 255), 3)
+
+# print coordinates of centre and radius
+print(x, y, r)
+
+# gives direction of tennis ball 🎾
+direction()
